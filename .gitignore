@@ -1,0 +1,32 @@
+# Gradle
+.gradle/
+build/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS-specific files
+.DS_Store
+
+# IDE-specific files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Java-specific files
+*.class
+
+# JAR files
+*.jar
+
+# Script backups
+*~
+
+# Docker
+*.env
+docker-compose.override.yml

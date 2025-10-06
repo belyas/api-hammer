@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app1:
+    build:
+      context: .
+    ports:
+      - "8081:8080"
+    container_name: java_app1
+
+  app2:
+    build:
+      context: .
+    ports:
+      - "8082:8080"
+    container_name: java_app2
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app1
+      - app2
