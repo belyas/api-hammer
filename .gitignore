@@ -30,3 +30,4 @@ build/
 # Docker
 *.env
 docker-compose.override.yml
+nginx-logs/
