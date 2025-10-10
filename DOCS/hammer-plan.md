@@ -145,7 +145,7 @@ The system will manage “warriors,” support high concurrency, and sustain per
   - ✅ API (multiple instances: app1, app2)
   - ✅ Nginx load balancer
   - ❌ PostgreSQL database service
-- ❌ Add resource constraints:
+- ✅ Add resource constraints:
   ```yaml
   deploy:
     resources:
@@ -158,7 +158,7 @@ The system will manage “warriors,” support high concurrency, and sustain per
 
 - **✅ Completed:** Basic Docker setup with dual app instances and Nginx
 - **❌ Missing:** PostgreSQL service in docker-compose.yml
-- **❌ Missing:** Resource limits and health checks
+- **✅ Missing:** Resource limits and health checks
 - **❌ Missing:** Environment variables and configuration
 
 **Effort:** ~2 days total
