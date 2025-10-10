@@ -16,7 +16,7 @@ rm -rf ~/.gradle/caches
 
 ### Run
 ```bash
-gradle bootRun
+docker-compose up -d // if need to build, add --build flag
 ```
 
 ### Test
