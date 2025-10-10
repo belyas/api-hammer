@@ -9,6 +9,11 @@ services:
     container_name: java_app1
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "3.0G"
 
   app2:
     build:
@@ -18,6 +23,11 @@ services:
     container_name: java_app2
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "3.0G"
 
   nginx:
     image: nginx:latest
@@ -31,6 +41,11 @@ services:
       - app2
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "3.0G"
 
 networks:
   app_network:
