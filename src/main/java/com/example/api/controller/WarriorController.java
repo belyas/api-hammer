@@ -31,8 +31,12 @@ public class WarriorController {
         
         log.info("Received request to create warrior: {}", request.getName());
         WarriorResponse response = warriorService.createWarrior(request);
+        String location = String.format("/name/%s", response.getId());
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .header("Location", location)
+            .body(response);
     }
     
     /**
