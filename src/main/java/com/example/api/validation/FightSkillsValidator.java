@@ -16,6 +16,10 @@ public class FightSkillsValidator implements ConstraintValidator<FightSkillsCons
             return false;
         }
 
+        if (fightSkills.stream().anyMatch(skill -> skill == null || skill.trim().isEmpty())) {
+            return false;
+        }
+
         if (fightSkills.size() > MAX_ITEMS) {
             return false;
         }
