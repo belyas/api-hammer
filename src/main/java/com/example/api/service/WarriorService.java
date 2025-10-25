@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +48,7 @@ public class WarriorService {
     @Transactional(readOnly = true)
     public WarriorResponse getWarriorById(UUID id) {
         log.info("Fetching warrior with ID: {}", id);
-        
+
         Warrior warrior = warriorRepository.findById(id)
                 .orElseThrow(() -> new WarriorNotFoundException(id));
         
@@ -63,12 +64,13 @@ public class WarriorService {
         
         if (term == null || term.trim().isEmpty()) {
             // Return all warriors if no search term provided
-            return warriorRepository.findAll().stream()
+            return warriorRepository.findAll(PageRequest.of(0, 50)).stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());
         }
-        
-        List<Warrior> warriors = warriorRepository.searchByNameOrSkills(term.trim());
+
+        List<Warrior> warriors = warriorRepository.searchByNameOrSkills(
+            term.trim(), PageRequest.of(0, 50));
         log.info("Found {} warriors matching term: {}", warriors.size(), term);
         
         return warriors.stream()

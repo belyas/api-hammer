@@ -19,5 +19,6 @@ public interface WarriorRepository extends JpaRepository<Warrior, UUID> {
     @Query("SELECT DISTINCT w FROM Warrior w LEFT JOIN w.fightSkills s " +
            "WHERE LOWER(w.name) LIKE LOWER(CONCAT('%', :term, '%')) " +
            "OR LOWER(s) LIKE LOWER(CONCAT('%', :term, '%'))")
-    List<Warrior> searchByNameOrSkills(@Param("term") String term);
+    List<Warrior> searchByNameOrSkills(@Param("term") String term,
+        org.springframework.data.domain.Pageable pageable);
 }
