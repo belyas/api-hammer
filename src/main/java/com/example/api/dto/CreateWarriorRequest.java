@@ -1,5 +1,6 @@
 package com.example.api.dto;
 
+import com.example.api.validation.FightSkillsConstraint;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,5 +27,7 @@ public class CreateWarriorRequest {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
     
+    @NotNull(message = "Fight skills are required")
+    @FightSkillsConstraint
     private List<String> fightSkills;
 }
