@@ -3,6 +3,7 @@ package com.example.api.service;
 import com.example.api.dto.CountResponse;
 import com.example.api.dto.CreateWarriorRequest;
 import com.example.api.dto.WarriorResponse;
+import com.example.api.dto.WarriorResponseWithoutId;
 import com.example.api.entity.Warrior;
 import com.example.api.exception.WarriorNotFoundException;
 import com.example.api.repository.WarriorRepository;
@@ -27,7 +28,7 @@ public class WarriorService {
      * Creates a new warrior and returns the created entity with generated UUID
      */
     @Transactional
-    public WarriorResponse createWarrior(CreateWarriorRequest request) {
+    public WarriorResponseWithoutId createWarrior(CreateWarriorRequest request) {
         log.info("Creating new warrior with name: {}", request.getName());
         
         Warrior warrior = Warrior.builder()
@@ -38,8 +39,12 @@ public class WarriorService {
         
         Warrior savedWarrior = warriorRepository.save(warrior);
         log.info("Warrior created with ID: {}", savedWarrior.getId());
-        
-        return mapToResponse(savedWarrior);
+
+        return WarriorResponseWithoutId.builder()
+                .name(savedWarrior.getName())
+                .dob(savedWarrior.getDob())
+                .fightSkills(savedWarrior.getFightSkills())
+                .build();
     }
     
     /**
