@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: query-service
+
+  datasource:
+    url: jdbc:postgresql://${READMODEL_HOST:localhost}:${READMODEL_PORT:5434}/readmodel
+    username: ${READMODEL_USER:rm_user}
+    password: ${READMODEL_PASSWORD:rm_pass}
+    driver-class-name: org.postgresql.Driver
+    
+    hikari:
+      maximum-pool-size: 80
+      minimum-idle: 10
+      pool-name: ReadModelHikariPool
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: warrior-read-projection
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+    
+server:
+  port: 8092
+
+logging:
+  level:
+    com.example.query: INFO
