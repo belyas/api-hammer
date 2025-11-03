@@ -7,6 +7,7 @@ import com.example.api.dto.WarriorResponseWithoutId;
 import com.example.api.entity.Warrior;
 import com.example.api.exception.WarriorNotFoundException;
 import com.example.api.repository.WarriorRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,23 +24,23 @@ import java.util.stream.Collectors;
 public class WarriorService {
     
     private final WarriorRepository warriorRepository;
+    private final EntityManager entityManager;
     
     /**
      * Creates a new warrior and returns the created entity with generated UUID
+     * CRITICAL: Forces immediate flush+commit before returning 201 to client
      */
     @Transactional
     public WarriorResponseWithoutId createWarrior(CreateWarriorRequest request) {
-        log.info("Creating new warrior with name: {}", request.getName());
-        
         Warrior warrior = Warrior.builder()
                 .name(request.getName())
                 .dob(request.getDob())
                 .fightSkills(request.getFightSkills())
                 .build();
         
-        Warrior savedWarrior = warriorRepository.save(warrior);
-        log.info("Warrior created with ID: {}", savedWarrior.getId());
-
+        Warrior savedWarrior = warriorRepository.saveAndFlush(warrior);
+        entityManager.clear();
+        
         return WarriorResponseWithoutId.builder()
                 .name(savedWarrior.getName())
                 .dob(savedWarrior.getDob())
@@ -52,8 +53,6 @@ public class WarriorService {
      */
     @Transactional(readOnly = true)
     public WarriorResponse getWarriorById(UUID id) {
-        log.info("Fetching warrior with ID: {}", id);
-
         Warrior warrior = warriorRepository.findById(id)
                 .orElseThrow(() -> new WarriorNotFoundException(id));
         
@@ -65,10 +64,7 @@ public class WarriorService {
      */
     @Transactional(readOnly = true)
     public List<WarriorResponse> searchWarriors(String term) {
-        log.info("Searching warriors with term: {}", term);
-        
         if (term == null || term.trim().isEmpty()) {
-            // Return all warriors if no search term provided
             return warriorRepository.findAll(PageRequest.of(0, 50)).stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());
@@ -76,7 +72,6 @@ public class WarriorService {
 
         List<Warrior> warriors = warriorRepository.searchByNameOrSkills(
             term.trim(), PageRequest.of(0, 50));
-        log.info("Found {} warriors matching term: {}", warriors.size(), term);
         
         return warriors.stream()
                 .map(this::mapToResponse)
@@ -89,8 +84,6 @@ public class WarriorService {
     @Transactional(readOnly = true)
     public CountResponse getWarriorCount() {
         long count = warriorRepository.count();
-        log.info("Total warriors count: {}", count);
-        
         return CountResponse.builder()
                 .count(count)
                 .build();
