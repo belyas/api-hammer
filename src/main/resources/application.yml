@@ -7,6 +7,24 @@ spring:
     username: ${DB_USER:warrior_user}
     password: ${DB_PASSWORD:warrior_pass}
     driver-class-name: org.postgresql.Driver
+    
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
+      pool-name: WarriorHikariPool
+      connection-test-query: SELECT 1
+      validation-timeout: 3000
+      
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        rewriteBatchedStatements: true
 
   jpa:
     hibernate:
@@ -14,8 +32,13 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
 
   jackson:
     serialization:
@@ -26,5 +49,10 @@ server:
   port: 8080
   tomcat:
     threads:
-      max: 200
-      min-spare: 10
+      max: 100
+      min-spare: 25
+    accept-count: 200
+    max-connections: 10000
+    connection-timeout: 20000
+    keep-alive-timeout: 60000
+    max-keep-alive-requests: 100
