@@ -31,7 +31,7 @@ public class WarriorService {
      * CRITICAL: Forces immediate flush+commit before returning 201 to client
      */
     @Transactional
-    public WarriorResponseWithoutId createWarrior(CreateWarriorRequest request) {
+    public WarriorResponse createWarrior(CreateWarriorRequest request) {
         Warrior warrior = Warrior.builder()
                 .name(request.getName())
                 .dob(request.getDob())
@@ -41,11 +41,7 @@ public class WarriorService {
         Warrior savedWarrior = warriorRepository.saveAndFlush(warrior);
         entityManager.clear();
         
-        return WarriorResponseWithoutId.builder()
-                .name(savedWarrior.getName())
-                .dob(savedWarrior.getDob())
-                .fightSkills(savedWarrior.getFightSkills())
-                .build();
+        return mapToResponse(savedWarrior);
     }
     
     /**
