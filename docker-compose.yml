@@ -8,6 +8,18 @@ services:
       POSTGRES_DB: warriors
       POSTGRES_USER: warrior_user
       POSTGRES_PASSWORD: warrior_pass
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=512MB"
+      - "-c"
+      - "effective_cache_size=2GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
     ports:
       - "5432:5432"
     volumes:
@@ -19,6 +31,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   app1:
     build:
@@ -41,6 +57,13 @@ services:
         limits:
           cpus: "1.5"
           memory: "3.0G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      nproc:
+        soft: 4096
+        hard: 4096
 
   app2:
     build:
@@ -63,6 +86,13 @@ services:
         limits:
           cpus: "1.5"
           memory: "3.0G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      nproc:
+        soft: 4096
+        hard: 4096
 
   nginx:
     image: nginx:latest
@@ -81,6 +111,10 @@ services:
         limits:
           cpus: "1.5"
           memory: "3.0G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
 networks:
   app_network:
