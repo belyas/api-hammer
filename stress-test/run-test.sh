@@ -1,7 +1,7 @@
 
-GATLING_BIN_DIR=./deps/gatling-charts-highcharts-bundle-3.10.5/bin
+GATLING_BIN_DIR=../deps/gatling-charts-highcharts-bundle-3.10.5/bin
 
-WORKSPACE=$PWD/stress-test
+WORKSPACE=$PWD
 
 sh $GATLING_BIN_DIR/gatling.sh -rm local -s EngLabStressTest \
     -rd "Description" \
@@ -11,4 +11,4 @@ sh $GATLING_BIN_DIR/gatling.sh -rm local -s EngLabStressTest \
 
 sleep 3
 
-curl -v "http://localhost:9999/counting-warriors"
+curl -v "http://localhost/counting-warriors"
