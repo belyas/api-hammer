@@ -9,8 +9,11 @@ import io.gatling.http.Predef._
 class EngLabStressTest 
   extends Simulation {
 
+  private val baseUrl =
+    sys.env.getOrElse("BASE_URL", sys.props.getOrElse("baseUrl", "http://localhost"))
+
   val httpProtocol = http
-    .baseUrl("http://localhost")
+    .baseUrl(baseUrl)
     .userAgentHeader("Chaos Agent - Eng. Labs 3")
 
   val createAndLookUpWarriors = scenario("Creation and Lookup for Warriors")

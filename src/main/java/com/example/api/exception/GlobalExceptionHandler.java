@@ -1,8 +1,10 @@
 package com.example.api.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     
     @ExceptionHandler(WarriorNotFoundException.class)
@@ -29,6 +32,40 @@ public class GlobalExceptionHandler {
                 .build();
         
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(InvalidSearchTermException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidSearchTerm(
+            InvalidSearchTermException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleMalformedJson(
+            HttpMessageNotReadableException ex,
+            HttpServletRequest request) {
+
+        log.warn("Malformed request payload on {}: {}", request.getRequestURI(), ex.getMostSpecificCause().getMessage());
+
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Malformed JSON request")
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.badRequest().body(error);
     }
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -59,6 +96,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericError(
             Exception ex,
             HttpServletRequest request) {
+
+        log.error("Unexpected error while handling {}", request.getRequestURI(), ex);
         
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

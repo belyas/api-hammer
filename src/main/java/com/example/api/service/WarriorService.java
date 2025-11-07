@@ -5,6 +5,7 @@ import com.example.api.dto.CreateWarriorRequest;
 import com.example.api.dto.WarriorResponse;
 import com.example.api.dto.WarriorResponseWithoutId;
 import com.example.api.entity.Warrior;
+import com.example.api.exception.InvalidSearchTermException;
 import com.example.api.exception.WarriorNotFoundException;
 import com.example.api.repository.WarriorRepository;
 import jakarta.persistence.EntityManager;
@@ -61,9 +62,7 @@ public class WarriorService {
     @Transactional(readOnly = true)
     public List<WarriorResponse> searchWarriors(String term) {
         if (term == null || term.trim().isEmpty()) {
-            return warriorRepository.findAll(PageRequest.of(0, 50)).stream()
-                    .map(this::mapToResponse)
-                    .collect(Collectors.toList());
+            throw new InvalidSearchTermException("Query parameter 't' is required");
         }
 
         List<Warrior> warriors = warriorRepository.searchByNameOrSkills(
