@@ -1,120 +1,72 @@
-version: '3.8'
+x-service-defaults: &service-defaults
+  networks:
+    - app_network
+  restart: unless-stopped
+
+x-postgres-env: &postgres-env
+  POSTGRES_DB: ${POSTGRES_DB:-warriors}
+  POSTGRES_USER: ${POSTGRES_USER:-warrior_user}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warrior_pass}
 
 services:
   postgres:
-    image: postgres:15
-    container_name: warriors_db
+    <<: *service-defaults
+    image: postgres:15-alpine
     environment:
-      POSTGRES_DB: warriors
-      POSTGRES_USER: warrior_user
-      POSTGRES_PASSWORD: warrior_pass
-    command:
-      - "postgres"
-      - "-c"
-      - "max_connections=200"
-      - "-c"
-      - "shared_buffers=512MB"
-      - "-c"
-      - "effective_cache_size=2GB"
-      - "-c"
-      - "work_mem=16MB"
-      - "-c"
-      - "maintenance_work_mem=128MB"
+      <<: *postgres-env
+      POSTGRES_INITDB_ARGS: --auth-local=scram-sha-256 --auth-host=scram-sha-256
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U warrior_user -d warriors"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-warrior_user} -d ${POSTGRES_DB:-warriors}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
 
-  app1:
+  app:
+    <<: *service-defaults
     build:
       context: .
-    ports:
-      - "8081:8080"
-    container_name: java_app1
+      target: runtime
+    image: api-hammer-app:latest
     environment:
-      DB_HOST: postgres
-      DB_NAME: warriors
-      DB_USER: warrior_user
-      DB_PASSWORD: warrior_pass
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-warriors}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-warrior_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-warrior_pass}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - app_network
-    deploy:
-      resources:
-        limits:
-          cpus: "1.5"
-          memory: "3.0G"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-      nproc:
-        soft: 4096
-        hard: 4096
-
-  app2:
-    build:
-      context: .
-    ports:
-      - "8082:8080"
-    container_name: java_app2
-    environment:
-      DB_HOST: postgres
-      DB_NAME: warriors
-      DB_USER: warrior_user
-      DB_PASSWORD: warrior_pass
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app_network
-    deploy:
-      resources:
-        limits:
-          cpus: "1.5"
-          memory: "3.0G"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-      nproc:
-        soft: 4096
-        hard: 4096
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   nginx:
-    image: nginx:latest
+    <<: *service-defaults
+    image: nginx:1.27-alpine
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx-logs:/var/log/nginx
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
     depends_on:
-      - app1
-      - app2
-    networks:
-      - app_network
-    deploy:
-      resources:
-        limits:
-          cpus: "1.5"
-          memory: "3.0G"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   app_network:
@@ -122,3 +74,4 @@ networks:
 
 volumes:
   postgres_data:
+  nginx_logs:

@@ -16,10 +16,20 @@ rm -rf ~/.gradle/caches
 
 ### Run
 ```bash
-docker-compose up -d // if need to build, add --build flag
+cp .env.example .env  # customize credentials if needed
+docker compose up -d --build
+# run a second replica of the app behind nginx (optional)
+docker compose up -d --build --scale app=2
 ```
 
 ### Test
 ```bash
-curl http://localhost:8080/health
+# hit nginx which load-balances the app containers
+curl http://localhost/health
+
+# reach nginx' aggregated health endpoint
+curl http://localhost/healthz
+
+# inspect container health
+docker compose ps
 ```
