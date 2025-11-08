@@ -9,15 +9,15 @@ spring:
     driver-class-name: org.postgresql.Driver
     
     hikari:
-      maximum-pool-size: 50
-      minimum-idle: 10
-      connection-timeout: 20000
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      leak-detection-threshold: 60000
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:150}
+      minimum-idle: ${HIKARI_MIN_IDLE:40}
+      connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:15000}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:300000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+      leak-detection-threshold: ${HIKARI_LEAK_DETECTION:60000}
       pool-name: WarriorHikariPool
       connection-test-query: SELECT 1
-      validation-timeout: 3000
+      validation-timeout: ${HIKARI_VALIDATION_TIMEOUT:3000}
       
       data-source-properties:
         cachePrepStmts: true
@@ -49,10 +49,10 @@ server:
   port: 8080
   tomcat:
     threads:
-      max: 100
-      min-spare: 25
-    accept-count: 200
+      max: ${TOMCAT_MAX_THREADS:200}
+      min-spare: ${TOMCAT_MIN_SPARE_THREADS:50}
+    accept-count: ${TOMCAT_ACCEPT_COUNT:400}
     max-connections: 10000
-    connection-timeout: 20000
-    keep-alive-timeout: 60000
-    max-keep-alive-requests: 100
+    connection-timeout: ${TOMCAT_CONNECTION_TIMEOUT:20000}
+    keep-alive-timeout: ${TOMCAT_KEEP_ALIVE_TIMEOUT:60000}
+    max-keep-alive-requests: ${TOMCAT_MAX_KEEP_ALIVE:1000}

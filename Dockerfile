@@ -8,6 +8,7 @@ COPY settings.gradle build.gradle ./
 
 # Copy the rest of the sources and build the Spring Boot fat jar.
 COPY src src
+ENV GRADLE_OPTS="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2,TLSv1.3"
 RUN gradle clean bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine AS runtime

@@ -17,8 +17,8 @@ rm -rf ~/.gradle/caches
 ### Run
 ```bash
 cp .env.example .env  # customize credentials if needed
-docker compose up -d --build
-# run a second replica of the app behind nginx (optional)
+
+# build + run database + 2 Spring Boot replicas behind nginx
 docker compose up -d --build --scale app=2
 ```
 
@@ -32,4 +32,7 @@ curl http://localhost/healthz
 
 # inspect container health
 docker compose ps
+
+# run Gatling inside Docker with wide port range + tuned sysctls
+./stress-test/run-gatling-container.sh
 ```
