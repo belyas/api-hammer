@@ -1,5 +1,7 @@
 # API Hammer
 
+![Gatling Stress Test Results](gatling-results/englabstresstest-20251108030555404/test-results-2025-11-07-19.47.40.png)
+
 ### Prerequisite
 ```
 Gradle version: 8
