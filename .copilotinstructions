@@ -1,0 +1,195 @@
+# API Hammer Project - Copilot Instructions
+
+## Project Overview
+
+This is a high-performance REST API for managing "warriors" built with Java Spring Boot. The system is designed to handle high concurrency and stress testing scenarios with constrained resources (CPU: 1.5 cores, Memory: 3GB).
+
+## Technology Stack
+
+- **Language**: Java (Spring Boot)
+- **Database**: PostgreSQL with JPA/Hibernate
+- **Testing**: JUnit 5, Mockito, Gatling for load testing
+- **Containerization**: Docker Compose
+- **Build Tool**: Gradle
+- **Performance**: Optimized for high throughput and low latency
+
+## Code Style and Conventions
+
+### Java Standards
+
+- Use Java 17+ features when appropriate
+- Follow standard Java naming conventions (camelCase for variables/methods, PascalCase for classes)
+- Prefer composition over inheritance
+- Use Optional<T> for potentially null return values
+- Implement proper exception handling with custom exceptions where needed
+
+### Spring Boot Patterns
+
+- Use `@RestController` for REST endpoints
+- Implement proper HTTP status codes (200, 201, 404, 400, 500)
+- Use `@Valid` for request validation
+- Prefer constructor injection over field injection
+- Use `@Service` for business logic, `@Repository` for data access
+- Implement proper logging with SLF4J
+
+### Database Patterns
+
+- Use JPA entities with proper annotations (`@Entity`, `@Table`, `@Column`)
+- Implement UUID as primary keys for warriors
+- Use database indexes for performance-critical queries
+- Implement proper transaction management with `@Transactional`
+
+## API Design Guidelines
+
+### Warrior Entity Structure
+
+```java
+@Entity
+public class Warrior {
+    @Id
+    private UUID id;
+    private String name;
+    private LocalDate dateOfBirth;
+    private List<String> fightSkills;
+}
+```
+
+### Required Endpoints
+
+1. `POST /warrior` - Create new warrior
+2. `GET /warrior/{id}` - Get warrior by ID
+3. `GET /warrior?t={term}` - Search warriors by term
+4. `GET /counting-warriors` - Get total warrior count
+
+### Response Patterns
+
+- Always return proper HTTP status codes
+- Use consistent error response format:
+
+```json
+{
+	"error": "error_code",
+	"message": "Human readable message",
+	"timestamp": "2025-01-01T12:00:00Z"
+}
+```
+
+## Performance Considerations
+
+### Optimization Priorities
+
+- Database query optimization (use EXPLAIN ANALYZE)
+- Connection pooling configuration
+- JVM tuning for memory constraints
+- Async processing where appropriate
+- Caching strategies (consider Caffeine or Redis)
+
+### Load Testing Preparation
+
+- Code should be designed to handle 100-1000 concurrent users
+- Target metrics: p95 latency < 200ms, <1% error rate
+- Implement circuit breakers and retries with Resilience4j
+- Monitor memory usage and garbage collection
+
+## Testing Standards
+
+### Unit Testing
+
+- Use JUnit 5 with Mockito for mocking
+- Test coverage should exceed 80%
+- Test both happy path and error scenarios
+- Mock external dependencies (database, external APIs)
+
+### Integration Testing
+
+- Use `@SpringBootTest` for full context tests
+- Use TestContainers for database integration tests
+- Test REST endpoints with `@WebMvcTest`
+
+### Performance Testing
+
+- Gatling scripts for load testing
+- Test scenarios: spike testing, endurance testing, ramp-up testing
+- Monitor CPU, memory, and database performance
+
+## Docker and Deployment
+
+### Resource Constraints
+
+Always consider the deployment limits:
+
+```yaml
+deploy:
+  resources:
+    limits:
+      cpus: "1.5"
+      memory: "3g"
+```
+
+### Configuration
+
+- Use environment variables for configuration
+- Implement health check endpoints
+- Use proper logging levels for production
+
+## Security Considerations
+
+- Input validation for all endpoints
+- SQL injection prevention through JPA
+- Rate limiting for API endpoints
+- Proper error handling (don't expose stack traces)
+
+## Monitoring and Observability
+
+- Implement health check endpoints (`/actuator/health`)
+- Use metrics with Micrometer/Prometheus
+- Structured logging with correlation IDs
+- Database query performance monitoring
+
+## Common Patterns to Suggest
+
+### Repository Pattern
+
+```java
+@Repository
+public interface WarriorRepository extends JpaRepository<Warrior, UUID> {
+    List<Warrior> findByNameContainingIgnoreCase(String name);
+}
+```
+
+### Service Layer
+
+```java
+@Service
+@Transactional
+public class WarriorService {
+    // Business logic here
+}
+```
+
+### Controller Pattern
+
+```java
+@RestController
+@RequestMapping("/warrior")
+public class WarriorController {
+    @PostMapping
+    public ResponseEntity<WarriorResponse> createWarrior(@Valid @RequestBody CreateWarriorRequest request) {
+        // Implementation
+    }
+}
+```
+
+## Error Handling
+
+- Use `@ControllerAdvice` for global exception handling
+- Implement custom exceptions for business logic
+- Log errors appropriately (ERROR level for exceptions, WARN for validation failures)
+
+## Code Generation Preferences
+
+- Generate complete, production-ready code
+- Include proper validation annotations
+- Add comprehensive JavaDoc comments
+- Include relevant unit tests
+- Consider performance implications in all suggestions
