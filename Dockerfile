@@ -1,13 +1,25 @@
-# Build stage
-FROM gradle:8.14-jdk21 AS build
-WORKDIR /app
-COPY build.gradle settings.gradle ./
-COPY src ./src
-RUN gradle build -x test --no-daemon
+# syntax=docker/dockerfile:1.7
 
-# Run stage
-FROM eclipse-temurin:21-jdk-alpine
+FROM gradle:8.7-jdk21 AS build
+WORKDIR /workspace
+
+# Copy build scripts first to take advantage of Docker layer caching.
+COPY settings.gradle build.gradle ./
+
+# Copy the rest of the sources and build the Spring Boot fat jar.
+COPY src src
+ENV GRADLE_OPTS="-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2,TLSv1.3"
+RUN gradle clean bootJar -x test --no-daemon
+
+FROM eclipse-temurin:21-jre-alpine AS runtime
+RUN addgroup -S spring && adduser -S spring -G spring && apk add --no-cache curl
 WORKDIR /app
-COPY --from=build /app/build/libs/api-hammer-1.0-SNAPSHOT.jar app.jar
+
+COPY --from=build /workspace/build/libs/api-hammer.jar app.jar
 EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl --fail http://127.0.0.1:8080/health || exit 1
+
+USER spring
 ENTRYPOINT ["java", "-jar", "app.jar"]

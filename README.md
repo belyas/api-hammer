@@ -1,25 +1,28 @@
-# API Hammer
-
-### Prerequisite
 ```
-Gradle version: 8
-Java version: jdk 21
+    ╔═╗╔═╗╦  ╦ ╦╔═╗╔╦╗╔╦╗╔═╗╦═╗
+    ╠═╣╠═╝║  ╠═╣╠═╣║║║║║║║╣ ╠╦╝
+    ╩ ╩╩  ╩  ╩ ╩╩ ╩╩ ╩╩ ╩╚═╝╩╚═
 ```
 
-### Build
+![Gatling Stress Test Results](gatling-results/englabstresstest-20251108030555404/test-results-2025-11-07-19.47.40.png)
+
+### Run Application
 ```bash
-gradle clean build
-
-# if needed, remove cache then rebuild
-rm -rf ~/.gradle/caches
+docker compose up --build
 ```
 
-### Run
+### Test API
 ```bash
-docker-compose up -d // if need to build, add --build flag
+curl http://localhost/health
+curl http://localhost/warrior
 ```
 
-### Test
+### Run Stress Test
 ```bash
-curl http://localhost:8080/health
+cd stress-test
+./run-test.sh
 ```
+
+## 📋 Requirements
+- Docker & Docker Compose
+- Java 21 (for local development only)

@@ -29,7 +29,6 @@ public class WarriorController {
     public ResponseEntity<WarriorResponse> createWarrior(
             @Valid @RequestBody CreateWarriorRequest request) {
         
-        log.info("Received request to create warrior: {}", request.getName());
         WarriorResponse response = warriorService.createWarrior(request);
         String location = String.format("/warrior/%s", response.getId());
         
@@ -44,9 +43,7 @@ public class WarriorController {
      */
     @GetMapping("/warrior/{id}")
     public ResponseEntity<WarriorResponse> getWarriorById(@PathVariable UUID id) {
-        log.info("Received request to get warrior with ID: {}", id);
         WarriorResponse response = warriorService.getWarriorById(id);
-        
         return ResponseEntity.ok(response);
     }
     
@@ -57,9 +54,7 @@ public class WarriorController {
     public ResponseEntity<List<WarriorResponse>> searchWarriors(
             @RequestParam(value = "t", required = false) String term) {
         
-        log.info("Received request to search warriors with term: {}", term);
         List<WarriorResponse> warriors = warriorService.searchWarriors(term);
-        
         return ResponseEntity.ok(warriors);
     }
     
@@ -68,9 +63,7 @@ public class WarriorController {
      */
     @GetMapping("/counting-warriors")
     public ResponseEntity<CountResponse> getWarriorCount() {
-        log.info("Received request to count warriors");
         CountResponse response = warriorService.getWarriorCount();
-        
         return ResponseEntity.ok(response);
     }
 }

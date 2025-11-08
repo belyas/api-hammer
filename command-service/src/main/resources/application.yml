@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: command-service
+
+  datasource:
+    url: jdbc:postgresql://${EVENTSTORE_HOST:localhost}:${EVENTSTORE_PORT:5433}/eventstore
+    username: ${EVENTSTORE_USER:es_user}
+    password: ${EVENTSTORE_PASSWORD:es_pass}
+    driver-class-name: org.postgresql.Driver
+    
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 20
+      connection-timeout: 20000
+      pool-name: EventStoreHikariPool
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    
+server:
+  port: 8091
+
+logging:
+  level:
+    com.example.command: INFO
+    org.springframework.kafka: WARN
